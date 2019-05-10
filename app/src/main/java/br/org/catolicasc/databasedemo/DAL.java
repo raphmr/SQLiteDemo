@@ -40,9 +40,50 @@ public class DAL {
         return true;
     }
 
+    public boolean update(String title, String author, String publisher, int id) {
+        ContentValues values;
+        long result;
+
+        db = database.getWritableDatabase();
+        values = new ContentValues();
+        values.put(CreateDatabase.TITLE, title);
+        values.put(CreateDatabase.AUTHOR, author);
+        values.put(CreateDatabase.PUBLISHER, publisher);
+        String[] whereArgs = {String.valueOf(id)};
+
+        result = db.update(CreateDatabase.TABLE, values, "_id = ?", whereArgs);
+        db.close();
+
+
+        if (result == -1) {
+            Log.e(TAG, "insert: Erro inserindo registro");
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean delete(int id) {
+        long result;
+
+        db = database.getWritableDatabase();
+        String[] whereArgs = {String.valueOf(id)};
+
+        result = db.delete(CreateDatabase.TABLE, "_id = ?", whereArgs);
+        db.close();
+
+
+        if (result == -1) {
+            Log.e(TAG, "insert: Erro inserindo registro");
+            return false;
+        }
+
+        return true;
+    }
+
     public Cursor loadAll() {
         Cursor cursor;
-        String [] fields = {CreateDatabase.ID, CreateDatabase.TITLE};
+        String[] fields = {CreateDatabase.ID, CreateDatabase.TITLE};
         db = database.getReadableDatabase();
 
         // SELECT _id, title FROM book
@@ -50,6 +91,24 @@ public class DAL {
         //cursor = db.rawQuery(sql, null);
         cursor = db.query(CreateDatabase.TABLE, fields, null,
                 null, null, null,
+                null, null);
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+
+        db.close();
+        return cursor;
+    }
+
+    public Cursor findById(int id) {
+        Cursor cursor;
+        final String whereClause = "_id = ?";
+        String[] whereArgs = {String.valueOf(id)};
+        db = database.getReadableDatabase();
+
+        cursor = db.query(CreateDatabase.TABLE, null, whereClause,
+                whereArgs, null, null,
                 null, null);
 
         if (cursor != null) {
